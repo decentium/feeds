@@ -1,0 +1,6 @@
+port = 'PORT'
+eosio_node = 'EOSIO_NODE'
+block_cache_size = 'BLOCK_CACHE_SIZE'
+[log]
+__name = 'LOG_STREAMS'
+__format = 'json'

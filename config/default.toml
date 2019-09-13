@@ -1,0 +1,19 @@
+# default configuration, override in config/local.toml or with
+# env vars as defined in config/custom-environment-variables.toml
+
+# application name used for logging and service namespace
+name = 'decentium-feeds'
+
+# port http server listens on
+port = 8080
+
+# how many (pruned) blocks to keep in the LRU cache
+block_cache_size = 1000000
+
+# eosio rpc node used to get blocks and query tables
+eosio_node = 'https://eos.greymass.com'
+
+# logging output, can be repeated
+[[log]]
+level = 'debug'
+out = 'stdout' # path or stdout/err
