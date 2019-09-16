@@ -1,6 +1,6 @@
 import * as assert from 'assert'
 import * as config from 'config'
-import { Feed } from 'feed'
+import {Feed} from 'feed'
 import * as http from 'http'
 import {parse as parseQs} from 'querystring'
 import {parse as parseUrl} from 'url'
@@ -34,7 +34,7 @@ function writeFeed(res: http.ServerResponse, feed: Feed | null, type: string) {
     }
     const data = Buffer.from(feedContents, 'utf8')
     res.writeHead(200, {
-        'Content-Type': `${ contentType }; charset=utf-8`,
+        'Content-Type': `${contentType}; charset=utf-8`,
         'Content-Length': data.byteLength,
         'Cache-Control': 'public, max-age=60, stale-while-revalidate=600, stale-if-error=86400',
     })
@@ -95,22 +95,46 @@ export async function main() {
     })
     const port = parseInt(config.get('port'), 10)
     assert(isFinite(port), 'invalid port number')
-    server.listen(port)
-    logger.info({port}, 'service running')
+    server.listen(port, () => {
+        logger.info('listening on %d', port)
+    })
+    return server
 }
 
-function exit(code: number, timeout = 2000) {
+function exit(code: number, timeout = 3000) {
+    // give loggers chance to flush
     process.exitCode = code
-    setTimeout(() => { process.exit(code) }, timeout)
+    setTimeout(() => {
+        process.exit(code)
+    }, timeout)
 }
 
 if (module === require.main) {
-    process.once('uncaughtException', (error) => {
-        logger.error(error, 'uncaught exception')
+    process.on('unhandledRejection', (error) => {
+        logger.fatal(error, 'unhandled rejection')
         exit(1)
     })
-    main().catch((error) => {
-        logger.fatal(error, 'unable to start application')
+    process.on('uncaughtException', (error) => {
+        logger.fatal(error, 'uncaught exception')
         exit(1)
     })
+    main()
+        .then((server) => {
+            const gracefulExit = () => {
+                logger.info('caught signal, exiting...')
+                server.close((error) => {
+                    if (error) {
+                        logger.error(error, 'error closing http server')
+                    }
+                    exit(0)
+                })
+                exit(0, 5000) // make sure we always exit
+            }
+            process.on('SIGTERM', gracefulExit)
+            process.on('SIGINT', gracefulExit)
+        })
+        .catch((error) => {
+            logger.fatal(error, 'unable to start application')
+            exit(1)
+        })
 }
