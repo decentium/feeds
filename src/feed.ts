@@ -69,6 +69,10 @@ export async function buildBlogFeed(author: string) {
             content: render(post.doc),
             description: post.metadata ? post.metadata.summary : undefined,
             image: post.metadata ? post.metadata.image : undefined,
+            extensions: [{
+                name: 'topic',
+                objects: ref.category,
+            }],
         } as FeedItem
     })
     const items = (await queue.addAll(tasks)).filter((item) => item !== null) as FeedItem[]
