@@ -14,7 +14,7 @@ function isName(value: string) {
 
 function writeFeed(res: http.ServerResponse, feed: Feed | null, format: string) {
     if (!feed) {
-        res.writeHead(400)
+        res.writeHead(404)
         res.end()
         return
     }
