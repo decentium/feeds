@@ -12,7 +12,7 @@ function isName(value: string) {
     return /^[a-z1-5.]{1,13}$/.test(value)
 }
 
-function writeFeed(res: http.ServerResponse, feed: Feed | null, type: string) {
+function writeFeed(res: http.ServerResponse, feed: Feed | null, format: string) {
     if (!feed) {
         res.writeHead(400)
         res.end()
@@ -20,7 +20,7 @@ function writeFeed(res: http.ServerResponse, feed: Feed | null, type: string) {
     }
     let contentType: string
     let feedContents: string
-    switch (type) {
+    switch (format) {
         case 'json':
             feedContents = feed.json1()
             contentType = 'application/json'
@@ -60,8 +60,8 @@ async function feedHandler(req: http.IncomingMessage, res: http.ServerResponse) 
     const url = parseUrl(req.url || '')
     const query = parseQs(url.query || '')
     const paths = (url.pathname || '/').split('/').filter((p) => p.length > 0)
-    const feedType = query.type || 'atom'
-    if (typeof feedType !== 'string' || !['json', 'rss', 'atom'].includes(feedType)) {
+    const feedFormat = query.format || 'atom'
+    if (typeof feedFormat !== 'string' || !['json', 'rss', 'atom'].includes(feedFormat)) {
         res.writeHead(400)
         res.end('Invalid feed type')
         return
@@ -74,17 +74,45 @@ async function feedHandler(req: http.IncomingMessage, res: http.ServerResponse) 
     if ((paths.length === 2 && paths[0] === 'topic') || paths.length === 0) {
         const category = paths[1]
         logger.debug({category}, 'rendering trending feed')
+        let numItems: number | undefined
         const renderTime = await timeBlock(async () => {
-            writeFeed(res, await buildTrendingFeed(category), feedType)
+            const feed = await buildTrendingFeed(category)
+            if (feed) {
+                numItems = feed.items.length
+            }
+            writeFeed(res, feed, feedFormat)
         })
-        logger.info({renderTime, feedType, category}, 'rendered trending feed')
+        logger.info(
+            {
+                feed: 'trending',
+                renderTime,
+                feedFormat,
+                numItems,
+                category,
+            },
+            'rendered feed'
+        )
     } else if (paths.length === 1) {
         const author = paths[0]
         logger.debug('rendering feed for %s', author)
+        let numItems: number | undefined
         const renderTime = await timeBlock(async () => {
-            writeFeed(res, await buildBlogFeed(author), feedType)
+            const feed = await buildBlogFeed(author)
+            if (feed) {
+                numItems = feed.items.length
+            }
+            writeFeed(res, feed, feedFormat)
         })
-        logger.info({renderTime, feedType}, 'rendered feed for %s', author)
+        logger.info(
+            {
+                feed: 'blog',
+                renderTime,
+                feedFormat,
+                author,
+                numItems,
+            },
+            'rendered feed',
+        )
     } else {
         res.writeHead(404)
         res.end()
