@@ -25,3 +25,5 @@ Deploying
 ---------
 
 The service is designed to sit behind a proxy cache and/or CDN that respects `Cache-Control` directives. Memory consumption will be proportional to size of the block cache and can be tweaked with the `BLOCK_CACHE_SIZE` env var.
+
+See the `config/` for more configuration options.

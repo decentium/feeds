@@ -10,8 +10,20 @@ port = 8080
 # how many (pruned) blocks to keep in the LRU cache
 block_cache_size = 1000000
 
+# Decentium contract account (decentiumorg = mainnet)
+contract_account = 'decentiumorg'
+
 # eosio rpc node used to get blocks and query tables
 eosio_node = 'https://eos.greymass.com'
+
+# how many outgoing request to eosio rpc node to allow in parallel
+fetch_concurrency = 20
+
+# where permlinks resolve to, mainnet should always be https://decentium.org
+main_url = 'https://decentium.org'
+
+# where feeds are served
+feed_url = 'https://feeds.decentium.org'
 
 # logging output, can be repeated
 [[log]]

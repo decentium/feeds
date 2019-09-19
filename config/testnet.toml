@@ -1,0 +1,3 @@
+contract_account = 'decentiummmm'
+eosio_node = 'https://api.jungle.alohaeos.com'
+main_url = 'https://testnet.decentium.org'

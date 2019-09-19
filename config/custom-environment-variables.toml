@@ -1,6 +1,10 @@
 port = 'PORT'
 eosio_node = 'EOSIO_NODE'
 block_cache_size = 'BLOCK_CACHE_SIZE'
+contract_account = 'CONTRACT_ACCOUNT'
+fetch_concurrency = 'FETCH_CONCURRENCY'
+main_url = 'MAIN_URL'
+feed_url = 'FEED_URL'
 [log]
 __name = 'LOG_STREAMS'
 __format = 'json'
