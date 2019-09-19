@@ -8,6 +8,10 @@ import {logger} from './common'
 import {buildBlogFeed, buildTrendingFeed} from './feed'
 import version from './version'
 
+function isName(value: string) {
+    return /^[a-z1-5.]{1,13}$/.test(value)
+}
+
 function writeFeed(res: http.ServerResponse, feed: Feed | null, type: string) {
     if (!feed) {
         res.writeHead(400)
@@ -60,6 +64,11 @@ async function feedHandler(req: http.IncomingMessage, res: http.ServerResponse) 
     if (typeof feedType !== 'string' || !['json', 'rss', 'atom'].includes(feedType)) {
         res.writeHead(400)
         res.end('Invalid feed type')
+        return
+    }
+    if (!paths.every(isName)) {
+        res.writeHead(400)
+        res.end('Invalid name')
         return
     }
     if ((paths.length === 2 && paths[0] === 'topic') || paths.length === 0) {
