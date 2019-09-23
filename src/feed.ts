@@ -64,7 +64,7 @@ export async function buildBlogFeed(author: string) {
         }
         return {
             title: post.title,
-            link: `${authorUrl}/${encodePermlink(ref.permlink)}`,
+            link: `${mainUrl}/${encodePermlink(ref.permlink)}`,
             date: new Date(ref.timestamp + 'Z'),
             content: render(post.doc),
             description: post.metadata ? post.metadata.summary : undefined,
